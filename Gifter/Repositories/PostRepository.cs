@@ -7,7 +7,7 @@ using Gifter.Utils;
 
 namespace Gifter.Repositories
 {
-    public class PostRepository : BaseRepository, IPostRepository, IPostRepository
+    public class PostRepository : BaseRepository, IPostRepository
     {
         public PostRepository(IConfiguration configuration) : base(configuration) { }
 
