@@ -1,4 +1,6 @@
 
+using Gifter.Repositories;
+
 namespace Gifter
 {
     public class Program
@@ -10,6 +12,7 @@ namespace Gifter
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddTransient<IPostRepository, PostRepository>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -21,6 +24,14 @@ namespace Gifter
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                // Do not block requests while in development
+                app.UseCors(options =>
+                {
+                    options.AllowAnyOrigin();
+                    options.AllowAnyMethod();
+                    options.AllowAnyHeader();
+                });
             }
 
             app.UseHttpsRedirection();
