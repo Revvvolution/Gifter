@@ -39,6 +39,17 @@ namespace Gifter.Controllers
             return Ok(post);
         }
 
+        [HttpGet("GetPostByIdWithComments/{id}")]
+        public IActionResult GetPostByIdWithComments(int id)
+        {
+            var post = _postRepository.GetPostByIdWithComments(id);
+            if (post == null)
+            {
+                return NotFound();
+            }
+            return Ok(post);
+        }
+
         [HttpPost]
         public IActionResult Post(Post post)
         {
