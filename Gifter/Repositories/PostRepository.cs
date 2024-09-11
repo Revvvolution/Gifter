@@ -7,9 +7,25 @@ using Gifter.Utils;
 
 namespace Gifter.Repositories
 {
+
     public class PostRepository : BaseRepository, IPostRepository
     {
         public PostRepository(IConfiguration configuration) : base(configuration) { }
+
+
+        // Method for query SElECT data to help replace redundancy
+        private string PostSelect()
+        {
+            var postQuery = @"SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
+                                     p.ImageUrl AS PostImageUrl, p.UserProfileId,
+
+                                     up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated,
+                                     up.ImageUrl AS UserProfileImageUrl
+                                FROM Post p 
+                           LEFT JOIN UserProfile up ON p.UserProfileId = up.id ";
+
+            return postQuery;
+        }
 
         public List<Post> GetAll()
         {
@@ -18,15 +34,7 @@ namespace Gifter.Repositories
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                        SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
-                                p.ImageUrl AS PostImageUrl, p.UserProfileId,
-
-                                up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated, 
-                                up.ImageUrl AS UserProfileImageUrl
-                            FROM Post p 
-                                LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                        ORDER BY p.DateCreated";
+                    cmd.CommandText = PostSelect() + "ORDER BY p.DateCreated";
 
                     var reader = cmd.ExecuteReader();
 
@@ -137,15 +145,7 @@ namespace Gifter.Repositories
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                            SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
-                                   p.ImageUrl AS PostImageUrl, p.UserProfileId,
-
-                                   up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated, 
-                                   up.ImageUrl AS UserProfileImageUrl
-                              FROM Post p 
-                         LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                             WHERE p.Id = @Id";
+                    cmd.CommandText = PostSelect() + "WHERE p.Id = @Id";
 
                     DbUtils.AddParameter(cmd, "@Id", id);
 
@@ -207,7 +207,7 @@ namespace Gifter.Repositories
                     Post post = null;
                     while (reader.Read())
                     {
-                        
+
                         if (post == null)
                         {
                             post = new Post()
@@ -314,5 +314,105 @@ namespace Gifter.Repositories
                 }
             }
         }
+
+
+        // Adding new method for search using defined parameters
+        public List<Post> Search(string criterion, bool sortDescending)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    var sql = PostSelect() + "WHERE p.Title LIKE @Criterion OR p.Caption LIKE @Criterion";
+
+                    if (sortDescending)
+                    {
+                        sql += " ORDER BY p.DateCreated DESC";
+                    }
+                    else
+                    {
+                        sql += " ORDER BY p.DateCreated";
+                    }
+
+                    cmd.CommandText = sql;
+                    DbUtils.AddParameter(cmd, "@Criterion", $"%{criterion}%");
+                    var reader = cmd.ExecuteReader();
+
+                    var posts = new List<Post>();
+                    while (reader.Read())
+                    {
+                        posts.Add(new Post()
+                        {
+                            Id = DbUtils.GetInt(reader, "PostId"),
+                            Title = DbUtils.GetString(reader, "Title"),
+                            Caption = DbUtils.GetString(reader, "Caption"),
+                            DateCreated = DbUtils.GetDateTime(reader, "PostDateCreated"),
+                            ImageUrl = DbUtils.GetString(reader, "PostImageUrl"),
+                            UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
+                            UserProfile = new UserProfile()
+                            {
+                                Id = DbUtils.GetInt(reader, "UserProfileId"),
+                                Name = DbUtils.GetString(reader, "Name"),
+                                Email = DbUtils.GetString(reader, "Email"),
+                                DateCreated = DbUtils.GetDateTime(reader, "UserProfileDateCreated"),
+                                ImageUrl = DbUtils.GetString(reader, "UserProfileImageUrl"),
+                            },
+                        });
+                    }
+
+                    reader.Close();
+
+                    return posts;
+                }
+            }
+        }
+
+
+        // Adding new method for displaying posts on or after a specified date
+        public List<Post> Hottest(DateTime criterion)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    var sql = PostSelect() + "WHERE p.DateCreated >= @Criterion ORDER BY p.DateCreated DESC";
+
+                    cmd.CommandText = sql;
+                    DbUtils.AddParameter(cmd, "@Criterion", $"{criterion}");
+                    var reader = cmd.ExecuteReader();
+
+                    var posts = new List<Post>();
+                    while (reader.Read())
+                    {
+                        posts.Add(new Post()
+                        {
+                            Id = DbUtils.GetInt(reader, "PostId"),
+                            Title = DbUtils.GetString(reader, "Title"),
+                            Caption = DbUtils.GetString(reader, "Caption"),
+                            DateCreated = DbUtils.GetDateTime(reader, "PostDateCreated"),
+                            ImageUrl = DbUtils.GetString(reader, "PostImageUrl"),
+                            UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
+                            UserProfile = new UserProfile()
+                            {
+                                Id = DbUtils.GetInt(reader, "UserProfileId"),
+                                Name = DbUtils.GetString(reader, "Name"),
+                                Email = DbUtils.GetString(reader, "Email"),
+                                DateCreated = DbUtils.GetDateTime(reader, "UserProfileDateCreated"),
+                                ImageUrl = DbUtils.GetString(reader, "UserProfileImageUrl"),
+                            },
+                        });
+                    }
+
+                    reader.Close();
+
+                    return posts;
+                }
+            }
+        }
+
+
+
     }
 }
