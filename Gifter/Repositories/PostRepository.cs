@@ -7,9 +7,25 @@ using Gifter.Utils;
 
 namespace Gifter.Repositories
 {
+
     public class PostRepository : BaseRepository, IPostRepository
     {
         public PostRepository(IConfiguration configuration) : base(configuration) { }
+
+
+        // Method for query SElECT data to help replace redundancy
+        private string PostSelect()
+        {
+            var postQuery = @"SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
+                                     p.ImageUrl AS PostImageUrl, p.UserProfileId,
+
+                                     up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated,
+                                     up.ImageUrl AS UserProfileImageUrl
+                                FROM Post p 
+                           LEFT JOIN UserProfile up ON p.UserProfileId = up.id ";
+
+            return postQuery;
+        }
 
         public List<Post> GetAll()
         {
@@ -18,15 +34,7 @@ namespace Gifter.Repositories
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                        SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
-                                p.ImageUrl AS PostImageUrl, p.UserProfileId,
-
-                                up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated, 
-                                up.ImageUrl AS UserProfileImageUrl
-                            FROM Post p 
-                                LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                        ORDER BY p.DateCreated";
+                    cmd.CommandText = PostSelect() + "ORDER BY p.DateCreated";
 
                     var reader = cmd.ExecuteReader();
 
@@ -137,15 +145,7 @@ namespace Gifter.Repositories
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                            SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
-                                   p.ImageUrl AS PostImageUrl, p.UserProfileId,
-
-                                   up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated, 
-                                   up.ImageUrl AS UserProfileImageUrl
-                              FROM Post p 
-                         LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                             WHERE p.Id = @Id";
+                    cmd.CommandText = PostSelect() + "WHERE p.Id = @Id";
 
                     DbUtils.AddParameter(cmd, "@Id", id);
 
@@ -324,15 +324,7 @@ namespace Gifter.Repositories
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    var sql =
-                        @"SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
-                        p.ImageUrl AS PostImageUrl, p.UserProfileId,
-
-                        up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated, 
-                        up.ImageUrl AS UserProfileImageUrl
-                    FROM Post p 
-                        LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                    WHERE p.Title LIKE @Criterion OR p.Caption LIKE @Criterion";
+                    var sql = PostSelect() + "WHERE p.Title LIKE @Criterion OR p.Caption LIKE @Criterion";
 
                     if (sortDescending)
                     {
@@ -385,16 +377,7 @@ namespace Gifter.Repositories
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    var sql =
-                        @"SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
-                                 p.ImageUrl AS PostImageUrl, p.UserProfileId,
-
-                                 up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated, 
-                                 up.ImageUrl AS UserProfileImageUrl
-                            FROM Post p 
-                       LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                           WHERE p.DateCreated >= @Criterion
-                        ORDER BY p.DateCreated DESC";
+                    var sql = PostSelect() + "WHERE p.DateCreated >= @Criterion ORDER BY p.DateCreated DESC";
 
                     cmd.CommandText = sql;
                     DbUtils.AddParameter(cmd, "@Criterion", $"{criterion}");
