@@ -380,7 +380,7 @@ namespace Gifter.Repositories
                     var sql = PostSelect() + "WHERE p.DateCreated >= @Criterion ORDER BY p.DateCreated DESC";
 
                     cmd.CommandText = sql;
-                    DbUtils.AddParameter(cmd, "@Criterion", $"{criterion}");
+                    DbUtils.AddParameter(cmd, "@Criterion", criterion);
                     var reader = cmd.ExecuteReader();
 
                     var posts = new List<Post>();
