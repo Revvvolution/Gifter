@@ -16,6 +16,15 @@ export const Post = ({ post }) => {
         </p>
         <p>{post.caption}</p>
       </CardBody>
+      <h3>Comments</h3>
+        {post.comments && post.comments.length > 0 ? 
+        (post.comments.map((comment) => 
+          (<div key={comment.id} className="comment">
+            <p>• {comment.message}</p>
+          </div>))
+        ) : (
+          <p>No comments for this post.</p>
+        )}
     </Card>
   );
 };
