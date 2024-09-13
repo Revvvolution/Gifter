@@ -16,3 +16,8 @@ export const addPost = (singlePost) => {
     body: JSON.stringify(singlePost),
   });
 };
+
+export const searchPosts = (query, sortDesc) => {
+  return fetch(`https://localhost:5001/api/Post/search?q=${query}&sortDesc=${sortDesc}`)
+  .then((res) => res.json())
+};
