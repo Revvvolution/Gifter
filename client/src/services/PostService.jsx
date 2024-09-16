@@ -28,3 +28,11 @@ export const getAllPostsWithComments = () => {
   return fetch(postCommentUrl)
   .then((res) => res.json())
 };
+
+export const getPost = (id) => {
+  return fetch(`https://localhost:5001/api/Post/GetPostByIdWithComments/${id}`).then((res) => res.json());
+};
+
+export const getPostsByUserId = (id) => {
+  return fetch(`https://localhost:5001/api/Post/GetPostsByUserId/${id}`).then((res) => res.json());
+};

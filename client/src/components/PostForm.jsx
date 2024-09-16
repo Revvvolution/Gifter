@@ -33,13 +33,16 @@ const PostForm = () => {
         userProfileId: '',
         dateCreated: new Date().toISOString()
       });
-      window.alert("Post added successfully")
+      window.alert("Post added successfully");
+      navigate("/");
     });
     
   };
 
   return (
-    <Form onSubmit={(e) => {handleSubmit(e)}}>
+    <>
+    <h1 className='newPost-header' style={{ marginBottom: '3rem'}}>Add A New Post</h1>
+    <Form onSubmit={(e) => { handleSubmit(e); } }>
       <FormGroup>
         <Label for="title">Title</Label>
         <Input
@@ -48,8 +51,7 @@ const PostForm = () => {
           id="title"
           value={formData.title}
           onChange={handleChange}
-          required
-        />
+          required />
       </FormGroup>
       <FormGroup>
         <Label for="imageUrl">Image URL</Label>
@@ -59,8 +61,7 @@ const PostForm = () => {
           id="imageUrl"
           value={formData.imageUrl}
           onChange={handleChange}
-          required
-        />
+          required />
       </FormGroup>
       <FormGroup>
         <Label for="caption">Caption</Label>
@@ -69,8 +70,7 @@ const PostForm = () => {
           name="caption"
           id="caption"
           value={formData.caption}
-          onChange={handleChange}
-        />
+          onChange={handleChange} />
       </FormGroup>
       <FormGroup>
         <Label for="userProfileId">User Profile ID</Label>
@@ -80,11 +80,11 @@ const PostForm = () => {
           id="userProfileId"
           value={formData.userProfileId}
           onChange={handleChange}
-          required
-        />
+          required />
       </FormGroup>
       <Button type="submit">Submit</Button>
     </Form>
+    </>
   );
 };
 

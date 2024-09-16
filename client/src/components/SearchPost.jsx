@@ -3,7 +3,7 @@ import { searchPosts } from '../services/PostService.jsx';
 import { Post } from "./Post";
 
 
-const SearchPosts = () => {
+const SearchPost = () => {
   const [query, setQuery] = useState('');
   const [sortDesc, setSortDesc] = useState(false);
   const [results, setResults] = useState([]);
@@ -24,6 +24,7 @@ const SearchPosts = () => {
         placeholder="Search posts..."
       />
       <label>
+        <span style={{marginLeft: '9px'}}></span>
         <input
           type="checkbox"
           checked={sortDesc}
@@ -31,7 +32,10 @@ const SearchPosts = () => {
         />
         Sort Descending
       </label>
-      <button onClick={() => {handleSearch(query, sortDesc)}}>Search</button>
+      <button 
+        style={{backgroundColor: 'lightblue', margin: '8px 0 10px 8px'}} 
+        onClick={() => {handleSearch(query, sortDesc)}}
+        >Search</button>
       <div className="container">
         <div className="row justify-content-center">
             <div className="cards-column">
@@ -45,4 +49,4 @@ const SearchPosts = () => {
   );
 };
 
-export default SearchPosts;
+export default SearchPost;
